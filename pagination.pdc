@@ -1,0 +1,36 @@
+--create a cursor package
+create or replace package pagePackage as type page_cursor is ref cursor;
+end pagePackage;
+
+--declare the variable
+create or replace procedure pagination
+(
+v_tableName in varchar2,--my table name
+v_pageSize in number, --the number of records for each page
+v_pageNow in number, --the current page index
+v_rowCount out number, --the number of rows
+v_pageCount out number, --the number of pages
+page_cursor out pagePackage.page_cursor --point to return record
+)is
+
+--define the length of sql
+v_sql varchar2(1000);
+v_begin number:=(v_pageNow-1)*v_pageSize+1; --based on the page size set the begin and end records index
+v_end number:=v_pageNow*v_pageSize;
+begin
+--execute
+v_sql:='select * from£¨select t1.*, rownum rn from (select * from '||v_tableName||')t1 where rownum<='||v_end||')where rn>='||v_begin;
+--connect the cursor to sql
+open page_cursor for v_sql;
+--get rowCount, execute the sql and assign the return value to rowCount
+v_sql:='select count(*) from '||v_tableName;
+execute immediate v_sql into v_rowCount;
+--get the pageCount
+if mod(v_rowCount,v_pageCount)=0 then
+  v_pageCount:=v_rowCount/v_pageSize;
+else
+  v_pageCount:=v_rowCount/v_pageSize+1;
+end if;
+end;
+
+  
