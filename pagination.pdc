@@ -19,7 +19,7 @@ v_begin number:=(v_pageNow-1)*v_pageSize+1; --based on the page size set the beg
 v_end number:=v_pageNow*v_pageSize;
 begin
 --execute
-v_sql:='select * from£¨select t1.*, rownum rn from (select * from '||v_tableName||')t1 where rownum<='||v_end||')where rn>='||v_begin;
+v_sql:='select * from(select t1.*, rownum rn from (select * from '||v_tableName||')t1 where rownum<='||v_end||')where rn>='||v_begin;
 --connect the cursor to sql
 open page_cursor for v_sql;
 --get rowCount, execute the sql and assign the return value to rowCount
